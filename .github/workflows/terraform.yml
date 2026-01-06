@@ -1,0 +1,42 @@
+name: Terraform
+
+on:
+  pull_request:
+    paths:
+      - "infra/**"
+  push:
+    branches: [ "main" ]
+    paths:
+      - "infra/**"
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/envs/dev
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Terraform Format
+        run: terraform fmt -recursive
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -input=false
+
+      - name: Terraform Apply (main only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
