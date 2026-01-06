@@ -2,7 +2,7 @@ name: GCP Auth Test
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
   auth-test:
